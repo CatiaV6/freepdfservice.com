@@ -34,7 +34,7 @@ export const ADS = {
     enabled: true,
     trackingCode: 'AF1667175',
     banners: {
-      sidebar: { id: 1038705, template: 'carousel', width: 300, height: 250 },
+      sidebar: { id: 1038708, template: 'carousel', width: 350, height: 250 },
       bottom:  { id: 1038705, template: 'carousel', width: 680, height: 140 },
       home:    { id: 1038705, template: 'carousel', width: 680, height: 140 },
     },
