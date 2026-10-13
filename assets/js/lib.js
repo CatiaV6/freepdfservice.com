@@ -47,30 +47,39 @@ export function getPdfJs() {
   return pdfjsPromise;
 }
 
-let koreanFontPromise = null;
-export function getKoreanFontBytes() {
-  if (!koreanFontPromise) {
-    koreanFontPromise = fetch(new URL('fonts/NanumGothic-Regular.ttf', base).href).then((r) => {
-      if (!r.ok) throw new Error('font load failed');
+const fontCache = new Map();
+function fetchFont(file) {
+  if (!fontCache.has(file)) {
+    fontCache.set(file, fetch(new URL('fonts/' + file, base).href).then((r) => {
+      if (!r.ok) throw new Error('font load failed: ' + file);
       return r.arrayBuffer();
-    });
+    }));
   }
-  return koreanFontPromise;
+  return fontCache.get(file);
 }
 
 // WinAnsi 로 표현 가능한 문자만 있으면 표준 Helvetica 를 쓰고, 아니면 나눔고딕을 임베드합니다.
 export function needsUnicodeFont(text) {
-  return /[^\x20-\x7E -ÿ]/.test(text);
+  return /[^\x20-\x7E\u00A0-\u00FF]/.test(text);
 }
 
+// 한글 폰트: 기본은 KS X 1001 2,350자 폰트(작음), 드문 글자가 있으면 11,172자 전체 폰트로 자동 전환.
+// pdf-lib 의 subset 기능(fontkit)은 이 폰트에서 글리프를 누락시키므로 subset: false 로 전체 임베드합니다.
 export async function embedTextFont(pdfDoc, text) {
   const PDFLib = await getPdfLib();
   if (!needsUnicodeFont(text)) {
     return pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
   }
-  const [fontkit, bytes] = await Promise.all([getFontkit(), getKoreanFontBytes()]);
+  const [fontkit, common] = await Promise.all([getFontkit(), fetchFont('NanumGothic-Common.ttf')]);
   pdfDoc.registerFontkit(fontkit);
-  return pdfDoc.embedFont(bytes, { subset: true });
+  let bytes = common;
+  const probe = fontkit.create(new Uint8Array(common));
+  const missing = [...text].some((ch) => {
+    const cp = ch.codePointAt(0);
+    return cp > 0x7e && !probe.hasGlyphForCodePoint(cp);
+  });
+  if (missing) bytes = await fetchFont('NanumGothic-Full.ttf');
+  return pdfDoc.embedFont(bytes, { subset: false });
 }
 
 // 암호 PDF 등 pdf-lib 로딩 오류를 사용자 메시지로 변환

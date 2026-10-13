@@ -1,14 +1,8 @@
 import { mountTool, field, select, userError } from '../tool.js';
-import { loadPdfDoc, getPdfLib, getJSZip } from '../lib.js';
+import { loadPdfDoc } from '../lib.js';
+import { extractPagesBytes, zipFiles, pdfBlob } from '../ops.js';
 import { isPdf, baseName, el, parseRanges, rangesToIndices } from '../util.js';
 import { t, L } from '../i18n.js';
-
-async function extract(PDFLib, src, indices) {
-  const doc = await PDFLib.PDFDocument.create();
-  const pages = await doc.copyPages(src, indices);
-  pages.forEach((p) => doc.addPage(p));
-  return doc.save();
-}
 
 mountTool({
   accept: 'application/pdf,.pdf',
@@ -20,7 +14,6 @@ mountTool({
     const f = ctx.files[0];
     const d = await loadPdfDoc(await f.file.arrayBuffer());
     f.meta.pages = d.getPageCount();
-    ctx.state.pageCount = f.meta.pages;
     ctx.refresh();
   },
   renderOptions(c) {
@@ -43,19 +36,18 @@ mountTool({
     c.append(field('opt.mode', mode), rangeField, everyField);
   },
   async run(ctx, progress) {
-    const PDFLib = await getPdfLib();
     const o = ctx.getOptions();
     const file = ctx.files[0];
     const base = baseName(file.name);
-    const src = await loadPdfDoc(await file.file.arrayBuffer());
-    const total = src.getPageCount();
+    const bytes = await file.file.arrayBuffer();
+    const total = (await loadPdfDoc(bytes)).getPageCount();
     const parts = []; // {name, indices}
 
     if (o.mode === 'extract' || o.mode === 'ranges') {
       const ranges = parseRanges(o.range, total);
       if (!ranges) throw userError('error.badRange');
       if (o.mode === 'extract') parts.push({ name: `${base}-pages.pdf`, indices: rangesToIndices(ranges) });
-      else ranges.forEach(([a, b], i) => parts.push({ name: `${base}-${a}${a === b ? '' : '-' + b}.pdf`, indices: rangesToIndices([[a, b]]) }));
+      else ranges.forEach(([a, b]) => parts.push({ name: `${base}-${a}${a === b ? '' : '-' + b}.pdf`, indices: rangesToIndices([[a, b]]) }));
     } else if (o.mode === 'every') {
       const n = Math.max(1, Math.floor(o.every || 1));
       for (let s = 0; s < total; s += n) {
@@ -68,17 +60,14 @@ mountTool({
 
     if (parts.length === 1) {
       progress(0.5, t('progress.saving'));
-      const bytes = await extract(PDFLib, src, parts[0].indices);
-      return { blob: new Blob([bytes], { type: 'application/pdf' }), filename: parts[0].name };
+      return { blob: pdfBlob(await extractPagesBytes(bytes, parts[0].indices)), filename: parts[0].name };
     }
-    const JSZip = await getJSZip();
-    const zip = new JSZip();
+    const entries = [];
     for (let i = 0; i < parts.length; i++) {
       progress(i / parts.length, L(`${i + 1} / ${parts.length} 파일 생성 중`, `Creating file ${i + 1} of ${parts.length}`));
-      zip.file(parts[i].name, await extract(PDFLib, src, parts[i].indices));
+      entries.push({ name: parts[i].name, data: await extractPagesBytes(bytes, parts[i].indices) });
     }
     progress(0.95, t('progress.zipping'));
-    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 1 } });
-    return { blob, filename: `${base}-split.zip` };
+    return { blob: await zipFiles(entries), filename: `${base}-split.zip` };
   },
 });

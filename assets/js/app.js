@@ -17,6 +17,7 @@ function renderHeader() {
       <a class="brand" href="${root}">${logo()}<span>Free<b>PDF</b></span></a>
       <nav class="nav">
         <a href="${root}" data-i18n="nav.home"></a>
+        <a href="${root}editor/" data-i18n="nav.editor" class="nav-editor"></a>
         <a href="${root}#tools" data-i18n="nav.tools"></a>
         <a href="${root}about/" data-i18n="nav.about"></a>
       </nav>
@@ -76,8 +77,9 @@ function renderToolGrid() {
   const lang = document.documentElement.lang;
   host.innerHTML = '';
   for (const tl of TOOLS) {
-    const a = el('a', { class: 'tool-card', href: `${root}${tl.slug}/` });
-    a.innerHTML = `<div class="tool-card-icon" style="--c:${tl.color}">${toolIcon(tl, 32)}</div><h3 data-i18n="${tl.key}">${t(tl.key)}</h3><p>${lang === 'en' ? tl.en : tl.ko}</p>`;
+    const a = el('a', { class: 'tool-card' + (tl.featured ? ' featured' : ''), href: `${root}${tl.slug}/` });
+    if (tl.featured) a.innerHTML = `<div class="tool-card-icon" style="--c:${tl.color}">${toolIcon(tl, 32)}</div><div><h3 data-i18n="${tl.key}">${t(tl.key)}</h3><p>${lang === 'en' ? tl.en : tl.ko}</p></div><span class="btn btn-primary cta">${lang === 'en' ? 'Open editor →' : '편집기 열기 →'}</span>`;
+    else a.innerHTML = `<div class="tool-card-icon" style="--c:${tl.color}">${toolIcon(tl, 32)}</div><h3 data-i18n="${tl.key}">${t(tl.key)}</h3><p>${lang === 'en' ? tl.en : tl.ko}</p>`;
     host.appendChild(a);
   }
 }

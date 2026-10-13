@@ -71,16 +71,7 @@ export function mountTool(cfg) {
   }
 
   function getOptions() {
-    const out = {};
-    if (!ctx.optionsEl) return out;
-    ctx.optionsEl.querySelectorAll('[name]').forEach((inp) => {
-      const name = inp.getAttribute('name');
-      if (inp.type === 'checkbox') out[name] = inp.checked;
-      else if (inp.type === 'radio') { if (inp.checked) out[name] = inp.value; }
-      else if (inp.type === 'number' || inp.type === 'range') out[name] = inp.value === '' ? null : Number(inp.value);
-      else out[name] = inp.value;
-    });
-    return out;
+    return ctx.optionsEl ? readOptions(ctx.optionsEl) : {};
   }
 
   function showError(e) {
@@ -259,6 +250,19 @@ export function mountTool(cfg) {
   document.addEventListener('langchange', () => render());
   render();
   return ctx;
+}
+
+// 컨테이너 안의 [name] 입력값을 객체로 읽음
+export function readOptions(root) {
+  const out = {};
+  root.querySelectorAll('[name]').forEach((inp) => {
+    const name = inp.getAttribute('name');
+    if (inp.type === 'checkbox') out[name] = inp.checked;
+    else if (inp.type === 'radio') { if (inp.checked) out[name] = inp.value; }
+    else if (inp.type === 'number' || inp.type === 'range') out[name] = inp.value === '' ? null : Number(inp.value);
+    else out[name] = inp.value;
+  });
+  return out;
 }
 
 export function escapeHtml(s) {

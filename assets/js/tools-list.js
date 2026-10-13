@@ -1,5 +1,8 @@
 // 홈 그리드 / 푸터 / "다른 도구" 영역에서 공통으로 쓰는 도구 목록
 export const TOOLS = [
+  { slug: 'editor', key: 'tool.editor', color: '#2563eb', featured: true,
+    ko: '파일 한 번 올리고 순서 변경·삭제·회전·워터마크·페이지 번호·압축·파일 추가까지 한 화면에서 이어서 작업하고 한 번에 다운로드.', en: 'Upload once, then reorder, delete, rotate, watermark, number, compress and merge in one screen. Download when you are done.',
+    icon: '<path d="M4 4h16v16H4z" stroke-width="2"/><path d="M4 10h16M10 10v10" stroke-width="2"/><path d="M14 14l2 2 3-3" stroke-width="2"/>' },
   { slug: 'merge-pdf', key: 'tool.merge', color: '#ef4444',
     ko: '여러 PDF 파일을 하나로 합칩니다. 드래그로 순서 변경.', en: 'Combine multiple PDFs into one, in the order you want.',
     icon: '<path d="M4 6h7v12H4zM13 6h7v12h-7z" stroke-width="2"/><path d="M11 12h2" stroke-width="2"/>' },
