@@ -47,7 +47,7 @@ export const STRINGS = {
     'footer.privacy': '개인정보처리방침',
     'footer.terms': '이용약관',
     'footer.about': '소개 및 문의',
-    'footer.coupang': '이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.',
+    'footer.coupang': '이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.',
     'footer.tagline': '설치 없이, 가입 없이, 100% 무료. 모든 처리는 내 브라우저에서.',
     'ad.placeholder': '광고 영역',
     'tool.merge': 'PDF 합치기',

@@ -31,12 +31,12 @@ export const ADS = {
   // 2) 생성된 코드의 id / trackingCode(AF로 시작) 를 아래에 입력, enabled: true
   // 3) 쿠팡 파트너스 규정상 배너가 있는 페이지에는 고지 문구가 필요합니다 (푸터에 자동 표시됨)
   coupang: {
-    enabled: false,
-    trackingCode: 'AF0000000',
+    enabled: true,
+    trackingCode: 'AF1667175',
     banners: {
-      sidebar: { id: 0, template: 'carousel', width: 300, height: 250 },
-      bottom:  { id: 0, template: 'carousel', width: 680, height: 140 },
-      home:    { id: 0, template: 'carousel', width: 680, height: 140 },
+      sidebar: { id: 1038705, template: 'carousel', width: 300, height: 250 },
+      bottom:  { id: 1038705, template: 'carousel', width: 680, height: 140 },
+      home:    { id: 1038705, template: 'carousel', width: 680, height: 140 },
     },
   },
 };
