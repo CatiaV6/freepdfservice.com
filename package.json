@@ -1,0 +1,10 @@
+{
+  "name": "freepdfservice.com",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FreePDF - 브라우저에서 동작하는 무료 PDF 도구 모음 (freepdfservice.com)",
+  "scripts": {
+    "dev": "npx --yes http-server . -p 8080 -c-1 -o",
+    "start": "npx --yes http-server . -p 8080 -c-1"
+  }
+}
